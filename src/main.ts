@@ -14,7 +14,7 @@ import {HttpFilter} from './common/filter'
 
 
 //白名单
-const whiteList = ['/user','/upload','/littlejoy']
+const whiteList = ['/user','/upload','/littlejoy','/auth']
 
 //全局中间件
 function globalMiddleware(req: Request, res: Response, next: NextFunction) {

@@ -19,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
       provide: 'joyvalue',
       useValue: ['TB', 'PDD', 'JD']
     },
+    UserService,
     UserService2,
     // {
     //   provide:'testFactory',
@@ -43,7 +44,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
     }
   ],
-  exports: [UserService2]
+  exports: [UserService2, UserService]
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

@@ -101,20 +101,33 @@ export class UserController {
     return 'all users'
   }
 
-  @Get(':id')
-  // @HttpCode(500)
-  // findOne(@Param('id') id: string) {
-  findOne(@Request() req, @Headers() header, @Param('id', ParseUUIDPipe) id: string) {
-    console.log("user findOne id:", typeof id);
-
-    // console.log(header)
-    // return this.userService.findOne(+id);
-    return {
-      code: 200,
-      // id: req.params
-      id
-    }
+  @Get('byname/:name')
+  findByName(@Param('name') name: string) {
+    // 处理按名称查询的逻辑
+    return this.userService.findOneByName(name);
   }
+
+  @Get('byid/:id')
+  findById(@Param('id') id: string) {
+    // 处理按 ID 查询的逻辑
+    return this.userService.findOneById(id);
+  }
+
+
+  // @Get(':id')
+  // // @HttpCode(500)
+  // // findOne(@Param('id') id: string) {
+  // findOne(@Request() req, @Headers() header, @Param('id', ParseUUIDPipe) id: string) {
+  //   console.log("user findOne id:", typeof id);
+
+  //   // console.log(header)
+  //   // return this.userService.findOne(+id);
+  //   return {
+  //     code: 200,
+  //     // id: req.params
+  //     id
+  //   }
+  // }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

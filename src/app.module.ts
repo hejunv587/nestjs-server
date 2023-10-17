@@ -6,9 +6,11 @@ import { UserModule } from './user/user.module';
 import { Config } from './config/config.module'
 import { UploadModule } from './upload/upload.module';
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { AuthModule } from './auth/auth.module';
+// import { AuthModule } from './auth/auth/auth.module';
 
 @Module({
-  imports: [UserModule, Config.forRoot({ path: 'joy' }), UploadModule, TypeOrmModule.forRoot({
+  imports: [UserModule,AuthModule, Config.forRoot({ path: 'joy' }), UploadModule, TypeOrmModule.forRoot({
     type: "mysql", //数据库类型
     username: "root", //账号
     password: "123456", //密码
