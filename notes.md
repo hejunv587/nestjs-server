@@ -24,3 +24,7 @@ TypeOrmModule.forRoot({
 ```
 
 * entity修改的是表的结构,而修改完以后要修改dto,在user.service.ts中去做对应结构字段的赋值之类的修改
+
+
+## auth
+* jwt , guard , paylaod ,Bearer access_token

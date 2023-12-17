@@ -9,12 +9,16 @@ export class HttpFilter implements ExceptionFilter {
         const request = ctx.getRequest<Request>()
         const respose = ctx.getResponse<Response>()
         let status: number
+        let message: string;
+
         if (exception instanceof HttpException) {
             status = exception.getStatus();
+            message = exception.message;
             // ... 其他逻辑
         } else {
             // 处理其他类型的异常
             status = exception.statusCode
+            message = 'Internal Server Error';
         }
         // const status = exception.getStatus()
         const date = new Date();
@@ -25,7 +29,7 @@ export class HttpFilter implements ExceptionFilter {
 
         respose.status(status).json({
             // data: exception.message,
-            data: exception,
+            data: message,
             status,
             success: false,
             time: formattedDate,

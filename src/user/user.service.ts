@@ -4,19 +4,22 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { PasswordService } from 'src/common/password.service';
 
 @Injectable()
 export class UserService {
+  constructor(@InjectRepository(User) private readonly user: Repository<User>, private readonly passwordService: PasswordService) { }
+
   findById(id: string) {
     throw new Error('Method not implemented.');
   }
-  constructor(@InjectRepository(User) private readonly user: Repository<User>) { }
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const data = new User()
     data.name = createUserDto.name
-    data.age = createUserDto.age
-    data.password = createUserDto.password
+    data.role = createUserDto.role
+    const hashedPassword = await this.passwordService.hashPassword(createUserDto.password);
+    data.password = hashedPassword
     return this.user.save(data)
 
   }
