@@ -15,7 +15,7 @@ export class Product {
   @Column()
   name: string;
 
-  @OneToMany(() => Upload, upload => upload.product)
+  @OneToMany(() => Upload, upload => upload.product, { nullable: true })
   // @OneToMany(() => Upload)
   images: Upload[];
 
@@ -35,7 +35,7 @@ export class Product {
   technical_parameters: string;
 
   // @Column()
-  @OneToMany(() => About, about => about.product)
+  @OneToMany(() => About, about => about.product, { nullable: true })
   about: About[];
 
   @Column({ type: 'text' })
@@ -50,6 +50,6 @@ export class Product {
   // @Column()
   // @ValidateNested({ each: true })
   // @Type(() => QA)
-  @OneToMany(() => About, qa => qa.product)
+  @OneToMany(() => About, qa => qa.product, { nullable: true })
   qa: QA[];
 }

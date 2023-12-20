@@ -10,8 +10,10 @@ import { zip } from 'compressing'
 import * as uuid from 'uuid'
 import * as mime from 'mime-types';
 import * as path from 'path';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('upload')
+@ApiTags('上传文件相关接口')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) { }
 
