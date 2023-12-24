@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-export class CreateAboutDto {
+export class CreateQADto {
     @ApiProperty({
         description: '问题',
         type: String,
@@ -16,8 +16,8 @@ export class CreateAboutDto {
 
     @ApiProperty({
         description: '产品记录id',
-        type: String,
-        example: '1',
+        type: Number,
+        example: 1,
         nullable: true,
     })
     productId?: number; // This is optional, depending on how you want to handle it

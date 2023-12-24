@@ -50,6 +50,7 @@ export class Product {
   // @Column()
   // @ValidateNested({ each: true })
   // @Type(() => QA)
-  @OneToMany(() => About, qa => qa.product, { nullable: true })
-  qa: QA[];
+  @OneToMany(() => QA, qa => qa.product, { eager: true })
+  @JoinColumn({ name: 'qas' })
+  qas: QA[];
 }

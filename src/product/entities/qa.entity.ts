@@ -12,7 +12,7 @@ export class QA {
     @Column()
     a: string;
 
-    @ManyToOne(() => Product, product => product.qa, { nullable: true })
+    @ManyToOne(() => Product, product => product.qas)
     @JoinColumn({ name: 'productId' })
     product?: Product;
 }

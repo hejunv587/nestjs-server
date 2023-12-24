@@ -36,6 +36,7 @@ export class CreateProductDto {
 
     @ApiProperty({ description: '注意事项', example: '["Please follow the instructions after M3 connects the motorcycle."]' })
     note: string[];
+    productId: any;
 
     //   @ApiProperty({ description: '常见问题及回答', type: [QADto], isArray: true })
     //   qa: QADto[];

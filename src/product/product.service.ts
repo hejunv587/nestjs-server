@@ -1,19 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
+import { QA } from './entities/qa.entity';
+import { CreateQADto } from './dto/create-qa.dto copy';
+import { CreateAboutDto } from './dto/create-about.dto';
+import { About } from './entities/about.entity';
+import { EntityManager, Transaction } from 'typeorm';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(QA)
+    private readonly qaRepository: Repository<QA>,
+    @InjectRepository(About)
+    private readonly aboutRepository: Repository<About>,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
   ) { }
 
   createProduct(createProductDto: CreateProductDto): Promise<Product> {
-    console.log('createProduct', createProductDto)
     const product = {
       model: createProductDto.model,
       name: createProductDto.name,
@@ -30,8 +40,47 @@ export class ProductService {
     return this.productRepository.save(product);
   }
 
+  createQA(createQADto: CreateQADto) {
+    let qa = {
+      q: createQADto.q,
+      a: createQADto.a,
+      productId: +createQADto.productId,
+    };
+    console.group('createQADto', qa)
+    // return this.qaRepository.save(qa);
+    // 使用事务
+    this.entityManager.transaction(async (transactionalEntityManager) => {
+      // const savedQA = await transactionalEntityManager.save(QA, qa);
+      const product = await transactionalEntityManager.findOne(Product, { where: { id: qa.productId }, relations: ['qas'] });
+      // INSERT INTO qa (q, a, productId) VALUES ('30岁S', '没有结婚的女人', 1);
+      console.group('product1', product)
+      const qa1 = {
+        q: createQADto.q,
+        a: createQADto.a,
+        product: { id: createQADto.productId }, // 提供有效的 Product 对象
+      };
+      const savedQA = await this.qaRepository.save(qa1);
+      // 确保 product.qa 是数组
+      product.qas = product.qas || [];
+      product.qas.push(savedQA);
+      const savedProduct = await transactionalEntityManager.save(Product, product);
+      console.group('product2', savedProduct)
+      return savedQA;
+    })
+
+  }
+
+  createAbout(createAboutDto: CreateAboutDto): Promise<About> {
+    const about = {
+      name: createAboutDto.name,
+      desc: createAboutDto.desc,
+      productId: createAboutDto.productId,
+    };
+    return this.aboutRepository.save(about);
+  }
+
   findAll() {
-    return `This action returns all product`;
+    return this.productRepository.find();
   }
 
   findOne(id: number) {
@@ -39,7 +88,9 @@ export class ProductService {
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+    const product = {
+    }
+    return this.productRepository.update(id, product)
   }
 
   remove(id: number) {
