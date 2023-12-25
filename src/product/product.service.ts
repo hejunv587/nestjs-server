@@ -9,6 +9,7 @@ import { CreateQADto } from './dto/create-qa.dto copy';
 import { CreateAboutDto } from './dto/create-about.dto';
 import { About } from './entities/about.entity';
 import { EntityManager, Transaction } from 'typeorm';
+import { Upload } from 'src/upload/entities/upload.entity';
 
 @Injectable()
 export class ProductService {
@@ -46,14 +47,12 @@ export class ProductService {
       a: createQADto.a,
       productId: +createQADto.productId,
     };
-    console.group('createQADto', qa)
     // return this.qaRepository.save(qa);
     // 使用事务
     this.entityManager.transaction(async (transactionalEntityManager) => {
       // const savedQA = await transactionalEntityManager.save(QA, qa);
       const product = await transactionalEntityManager.findOne(Product, { where: { id: qa.productId }, relations: ['qas'] });
       // INSERT INTO qa (q, a, productId) VALUES ('30岁S', '没有结婚的女人', 1);
-      console.group('product1', product)
       const qa1 = {
         q: createQADto.q,
         a: createQADto.a,
@@ -64,19 +63,48 @@ export class ProductService {
       product.qas = product.qas || [];
       product.qas.push(savedQA);
       const savedProduct = await transactionalEntityManager.save(Product, product);
-      console.group('product2', savedProduct)
       return savedQA;
     })
 
   }
 
-  createAbout(createAboutDto: CreateAboutDto): Promise<About> {
+  createAbout(createAboutDto: CreateAboutDto) {
     const about = {
       name: createAboutDto.name,
       desc: createAboutDto.desc,
       productId: createAboutDto.productId,
     };
-    return this.aboutRepository.save(about);
+    // return this.aboutRepository.save(about);
+    // 使用事务
+    this.entityManager.transaction(async (transactionalEntityManager) => {
+      // const savedQA = await transactionalEntityManager.save(QA, qa);
+      const product = await transactionalEntityManager.findOne(Product, { where: { id: about.productId }, relations: ['about'] });
+      // INSERT INTO qa (q, a, productId) VALUES ('30岁S', '没有结婚的女人', 1);
+      const about1 = {
+        name: createAboutDto.name,
+        desc: createAboutDto.desc,
+        product: { id: createAboutDto.productId }, // 提供有效的 Product 对象
+      };
+      const savedAbout = await this.aboutRepository.save(about1);
+      // 确保 product.qa 是数组
+      product.about = product.about || [];
+      product.about.push(savedAbout);
+      const savedProduct = await transactionalEntityManager.save(Product, product);
+      return savedAbout;
+    })
+  }
+
+  async addImage(id: number, uploadId: string) {
+    const product = await this.productRepository.findOne({ where: { id: +id }, relations: ['images'] });
+    // INSERT INTO qa (q, a, productId) VALUES ('30岁S', '没有结婚的女人', 1);
+    product.images = product.images || [];
+    // 创建新的 Upload 对象并添加到 images 数组中
+    const newUpload = new Upload();
+    newUpload.id = uploadId;
+    // newUpload.id = "0a75c57a-eb06-4b1f-92ae-26518899bcbe";
+    product.images.push(newUpload);
+    const savedProduct = await this.productRepository.save(product);
+    return savedProduct;
   }
 
   findAll() {

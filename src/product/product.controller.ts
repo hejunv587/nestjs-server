@@ -5,11 +5,16 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateQADto } from './dto/create-qa.dto copy';
 import { CreateAboutDto } from './dto/create-about.dto';
+import { UpdateProductImageDto } from './dto/update-productImage.dto';
+
+interface Upload {
+  id: string
+}
 
 @Controller('product')
 @ApiTags('产品相关接口')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(private readonly productService: ProductService) { }
 
   // @Post()
   // create(@Body() createProductDto: CreateProductDto) {
@@ -42,6 +47,13 @@ export class ProductController {
   findAll() {
     return this.productService.findAll();
   }
+
+  @Patch('addimage/:id')
+  @ApiOperation({ summary: '添加产品图片' })
+  addImage(@Param('id') id: number, @Body() updateProductImageDto: UpdateProductImageDto) {
+    return this.productService.addImage(+id, updateProductImageDto.uploadId);
+  }
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {

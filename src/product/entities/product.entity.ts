@@ -15,7 +15,7 @@ export class Product {
   @Column()
   name: string;
 
-  @OneToMany(() => Upload, upload => upload.product, { nullable: true })
+  @OneToMany(() => Upload, upload => upload.product, { eager: true })
   // @OneToMany(() => Upload)
   images: Upload[];
 
@@ -35,7 +35,8 @@ export class Product {
   technical_parameters: string;
 
   // @Column()
-  @OneToMany(() => About, about => about.product, { nullable: true })
+  @OneToMany(() => About, about => about.product, { eager: true })
+  @JoinColumn({ name: 'about' })
   about: About[];
 
   @Column({ type: 'text' })
