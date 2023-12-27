@@ -112,13 +112,57 @@ export class ProductService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} product`;
+    return this.productRepository.findOne({ where: { id: +id } });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
-    const product = {
+    // const product = {
+    //   model: updateProductDto.model,
+    //   name: updateProductDto.name,
+    //   description: updateProductDto.description,
+    //   overview: updateProductDto.overview,
+    //   functions: updateProductDto.functions.join(","),
+    //   advantages: updateProductDto.advantages.join(","),
+    //   technical_parameters: updateProductDto.technical_parameters.join(","),
+    //   services: updateProductDto.services.join(","),
+    //   whychoose: updateProductDto.whychoose.join(","),
+    //   note: updateProductDto.note.join(","),
+    //   // ...createProductDto,
+    // };
+    const productToUpdate: Partial<Product> = {};
+    if (updateProductDto.model) {
+      productToUpdate.model = updateProductDto.model;
     }
-    return this.productRepository.update(id, product)
+
+    if (updateProductDto.name) {
+      productToUpdate.name = updateProductDto.name;
+    }
+
+    if (updateProductDto.description) {
+      productToUpdate.description = updateProductDto.description;
+    }
+    if (updateProductDto.description) {
+      productToUpdate.description = updateProductDto.description;
+    }
+    if (updateProductDto.functions) {
+      productToUpdate.functions = updateProductDto.functions.join(",")
+    }
+    if (updateProductDto.advantages) {
+      productToUpdate.advantages = updateProductDto.advantages.join(",")
+    }
+    if (updateProductDto.technical_parameters) {
+      productToUpdate.technical_parameters = updateProductDto.technical_parameters.join(",")
+    }
+    if (updateProductDto.services) {
+      productToUpdate.services = updateProductDto.services.join(",")
+    }
+    if (updateProductDto.whychoose) {
+      productToUpdate.whychoose = updateProductDto.whychoose.join(",")
+    }
+    if (updateProductDto.note) {
+      productToUpdate.note = updateProductDto.note.join(",")
+    }
+    return this.productRepository.update(id, productToUpdate)
   }
 
   remove(id: number) {

@@ -3,17 +3,59 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
+
+interface QueryParam {
+  /** 当前页码 */
+  currentPage: number;
+  /** 查询条数 */
+  size: number;
+  /** 查询参数：用户名 */
+  name?: string;
+}
 
 @Injectable()
 export class CategoryService {
+  constructor(
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+  ) {}
 
-  constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>) { }
-  
   create(createCategoryDto: CreateCategoryDto) {
-    const data = new Category()
-    data.name = createCategoryDto.name
-    return this.categoryRepository.save(data)
+    const data = new Category();
+    data.name = createCategoryDto.name;
+    return this.categoryRepository.save(data);
+  }
+
+  async queryPage(queryParam: QueryParam) {
+    const { currentPage, size, name } = queryParam;
+
+    console.log('queryPage', currentPage, size, name);
+    const query: FindManyOptions<Category> = {
+      take: size,
+      skip: (currentPage - 1) * size,
+      where: {},
+    };
+
+    if (name) {
+      query.where = { ...query.where, name: name };
+    }
+
+    const [result, totalCount] = await this.categoryRepository.findAndCount(
+      query,
+    );
+
+    return {
+      // data: result,
+      // total: totalCount,
+      // currentPage: currentPage,
+      // size: size,
+
+      list: result,
+      total: totalCount,
+      currentPage: currentPage,
+      size: size,
+    };
   }
 
   findAll() {
@@ -26,7 +68,7 @@ export class CategoryService {
   }
 
   update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+    return this.categoryRepository.update(id, updateCategoryDto);
   }
 
   remove(id: number) {

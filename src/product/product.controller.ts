@@ -56,12 +56,13 @@ export class ProductController {
 
 
   @Get(':id')
+  @ApiOperation({ summary: 'id获取单个产品' })
   findOne(@Param('id') id: string) {
     return this.productService.findOne(+id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: '修改产品' })
+  @ApiOperation({ summary: 'id修改产品' })
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(+id, updateProductDto);
   }

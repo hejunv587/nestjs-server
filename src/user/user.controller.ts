@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Version, Request, Query, Headers, HttpCode, Req, Res, Session, Inject, ParseIntPipe, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 // import { UserPipe } from './pipes/user.pipe'
 
-import * as svgCaptcha from 'svg-captcha'
+import * as svgCaptcha from 'svg-captcha';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 // import { log } from 'console';
 // import * as uuid from 'uuid'
@@ -12,17 +12,16 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 // const uuid1 = uuid.v4()
 // console.log(uuid1);
 
-@ApiTags("用户接口")
+@ApiTags('用户接口')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Post()
   @ApiOperation({ summary: '创建一个新的用户' })
   @ApiBody({ type: CreateUserDto }) // Add this line to specify the request body
   // createUser(@Body(UserPipe) createUserDto: CreateUserDto) {
   createUser(@Body() createUserDto: CreateUserDto) {
-
     return this.userService.create(createUserDto);
   }
 
