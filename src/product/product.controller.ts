@@ -1,20 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateQADto } from './dto/create-qa.dto copy';
 import { CreateAboutDto } from './dto/create-about.dto';
 import { UpdateProductImageDto } from './dto/update-productImage.dto';
 
 interface Upload {
-  id: string
+  id: string;
+}
+
+interface QueryParam {
+  /** 当前页码 */
+  currentPage: number;
+  /** 查询条数 */
+  size: number;
+  /** 查询参数：产品编码 */
+  model?: string;
+  /** 查询参数：产品名 */
+  name?: string;
 }
 
 @Controller('product')
 @ApiTags('产品相关接口')
 export class ProductController {
-  constructor(private readonly productService: ProductService) { }
+  constructor(private readonly productService: ProductService) {}
 
   // @Post()
   // create(@Body() createProductDto: CreateProductDto) {
@@ -48,12 +68,44 @@ export class ProductController {
     return this.productService.findAll();
   }
 
-  @Patch('addimage/:id')
-  @ApiOperation({ summary: '添加产品图片' })
-  addImage(@Param('id') id: number, @Body() updateProductImageDto: UpdateProductImageDto) {
-    return this.productService.addImage(+id, updateProductImageDto.uploadId);
+  @Get('pagequery')
+  @ApiOperation({ summary: '翻页查询产品分类' })
+  @ApiQuery({ name: 'currentPage', description: '当前页码', type: Number })
+  @ApiQuery({ name: 'size', description: '查询条数', type: Number })
+  @ApiQuery({
+    name: 'name',
+    description: '查询参数：产品名',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'model',
+    description: '查询参数：产品编码',
+    required: false,
+    type: String,
+  })
+  queryPage(@Query() queryParam: QueryParam) {
+    console.log('queryPage', queryParam);
+    return this.productService.queryPage(queryParam);
   }
 
+  @Patch('addcover/:id')
+  @ApiOperation({ summary: '添加产品图片' })
+  addCover(
+    @Param('id') id: number,
+    @Body() updateProductImageDto: UpdateProductImageDto,
+  ) {
+    return this.productService.addCover(+id, updateProductImageDto.uploadId);
+  }
+
+  @Patch('addimage/:id')
+  @ApiOperation({ summary: '添加产品图片' })
+  addImage(
+    @Param('id') id: number,
+    @Body() updateProductImageDto: UpdateProductImageDto,
+  ) {
+    return this.productService.addImage(+id, updateProductImageDto.uploadId);
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'id获取单个产品' })

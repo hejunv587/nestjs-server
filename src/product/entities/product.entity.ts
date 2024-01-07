@@ -1,8 +1,15 @@
-import { Upload } from "src/upload/entities/upload.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { About } from "./about.entity";
-import { QA } from "./qa.entity";
-
+import { Upload } from 'src/upload/entities/upload.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { About } from './about.entity';
+import { QA } from './qa.entity';
 
 @Entity()
 export class Product {
@@ -15,7 +22,14 @@ export class Product {
   @Column()
   name: string;
 
-  @OneToMany(() => Upload, upload => upload.product, { eager: true })
+  @Column()
+  serie: string;
+
+  @OneToOne(() => Upload, (upload) => upload.product, { eager: true })
+  @JoinColumn({ name: 'cover_id' })
+  cover: Upload;
+
+  @OneToMany(() => Upload, (upload) => upload.product)
   // @OneToMany(() => Upload)
   images: Upload[];
 
@@ -35,7 +49,7 @@ export class Product {
   technical_parameters: string;
 
   // @Column()
-  @OneToMany(() => About, about => about.product, { eager: true })
+  @OneToMany(() => About, (about) => about.product)
   @JoinColumn({ name: 'about' })
   about: About[];
 
@@ -51,7 +65,7 @@ export class Product {
   // @Column()
   // @ValidateNested({ each: true })
   // @Type(() => QA)
-  @OneToMany(() => QA, qa => qa.product, { eager: true })
+  @OneToMany(() => QA, (qa) => qa.product)
   @JoinColumn({ name: 'qas' })
   qas: QA[];
 }

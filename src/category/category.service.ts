@@ -3,7 +3,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 
 interface QueryParam {
   /** 当前页码 */
@@ -38,7 +38,7 @@ export class CategoryService {
     };
 
     if (name) {
-      query.where = { ...query.where, name: name };
+      query.where = { ...query.where, name: Like(`%${name}%`) };
     }
 
     const [result, totalCount] = await this.categoryRepository.findAndCount(
@@ -72,6 +72,6 @@ export class CategoryService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} category`;
+    return this.categoryRepository.delete(id);
   }
 }

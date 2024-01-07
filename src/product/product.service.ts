@@ -3,13 +3,24 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 import { QA } from './entities/qa.entity';
 import { CreateQADto } from './dto/create-qa.dto copy';
 import { CreateAboutDto } from './dto/create-about.dto';
 import { About } from './entities/about.entity';
 import { EntityManager, Transaction } from 'typeorm';
 import { Upload } from 'src/upload/entities/upload.entity';
+
+interface QueryParam {
+  /** 当前页码 */
+  currentPage: number;
+  /** 查询条数 */
+  size: number;
+  /** 查询参数：产品编码 */
+  model?: string;
+  /** 查询参数：产品名 */
+  name?: string;
+}
 
 @Injectable()
 export class ProductService {
@@ -22,20 +33,21 @@ export class ProductService {
     private readonly aboutRepository: Repository<About>,
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
-  ) { }
+  ) {}
 
   createProduct(createProductDto: CreateProductDto): Promise<Product> {
     const product = {
       model: createProductDto.model,
       name: createProductDto.name,
+      serie: createProductDto.serie,
       description: createProductDto.description,
       overview: createProductDto.overview,
-      functions: createProductDto.functions.join(","),
-      advantages: createProductDto.advantages.join(","),
-      technical_parameters: createProductDto.technical_parameters.join(","),
-      services: createProductDto.services.join(","),
-      whychoose: createProductDto.whychoose.join(","),
-      note: createProductDto.note.join(","),
+      functions: createProductDto.functions.join(','),
+      advantages: createProductDto.advantages.join(','),
+      technical_parameters: createProductDto.technical_parameters.join(','),
+      services: createProductDto.services.join(','),
+      whychoose: createProductDto.whychoose.join(','),
+      note: createProductDto.note.join(','),
       // ...createProductDto,
     };
     return this.productRepository.save(product);
@@ -51,7 +63,10 @@ export class ProductService {
     // 使用事务
     this.entityManager.transaction(async (transactionalEntityManager) => {
       // const savedQA = await transactionalEntityManager.save(QA, qa);
-      const product = await transactionalEntityManager.findOne(Product, { where: { id: qa.productId }, relations: ['qas'] });
+      const product = await transactionalEntityManager.findOne(Product, {
+        where: { id: qa.productId },
+        relations: ['qas'],
+      });
       // INSERT INTO qa (q, a, productId) VALUES ('30岁S', '没有结婚的女人', 1);
       const qa1 = {
         q: createQADto.q,
@@ -62,10 +77,12 @@ export class ProductService {
       // 确保 product.qa 是数组
       product.qas = product.qas || [];
       product.qas.push(savedQA);
-      const savedProduct = await transactionalEntityManager.save(Product, product);
+      const savedProduct = await transactionalEntityManager.save(
+        Product,
+        product,
+      );
       return savedQA;
-    })
-
+    });
   }
 
   createAbout(createAboutDto: CreateAboutDto) {
@@ -78,7 +95,10 @@ export class ProductService {
     // 使用事务
     this.entityManager.transaction(async (transactionalEntityManager) => {
       // const savedQA = await transactionalEntityManager.save(QA, qa);
-      const product = await transactionalEntityManager.findOne(Product, { where: { id: about.productId }, relations: ['about'] });
+      const product = await transactionalEntityManager.findOne(Product, {
+        where: { id: about.productId },
+        relations: ['about'],
+      });
       // INSERT INTO qa (q, a, productId) VALUES ('30岁S', '没有结婚的女人', 1);
       const about1 = {
         name: createAboutDto.name,
@@ -89,13 +109,31 @@ export class ProductService {
       // 确保 product.qa 是数组
       product.about = product.about || [];
       product.about.push(savedAbout);
-      const savedProduct = await transactionalEntityManager.save(Product, product);
+      const savedProduct = await transactionalEntityManager.save(
+        Product,
+        product,
+      );
       return savedAbout;
-    })
+    });
+  }
+
+  async addCover(id: number, uploadId: string) {
+    const product = await this.productRepository.findOne({
+      where: { id: +id },
+    });
+    const newUpload = new Upload();
+    newUpload.id = uploadId;
+    // newUpload.id = "0a75c57a-eb06-4b1f-92ae-26518899bcbe";
+    product.cover = newUpload;
+    const savedProduct = await this.productRepository.save(product);
+    return savedProduct;
   }
 
   async addImage(id: number, uploadId: string) {
-    const product = await this.productRepository.findOne({ where: { id: +id }, relations: ['images'] });
+    const product = await this.productRepository.findOne({
+      where: { id: +id },
+      relations: ['images'],
+    });
     // INSERT INTO qa (q, a, productId) VALUES ('30岁S', '没有结婚的女人', 1);
     product.images = product.images || [];
     // 创建新的 Upload 对象并添加到 images 数组中
@@ -109,6 +147,47 @@ export class ProductService {
 
   findAll() {
     return this.productRepository.find();
+  }
+
+  async queryPage(queryParam: QueryParam) {
+    const { currentPage, size, name, model } = queryParam;
+
+    console.log('queryPage', currentPage, size, name);
+    const query: FindManyOptions<Product> = {
+      take: size,
+      skip: (currentPage - 1) * size,
+      where: {},
+      select: [
+        'id',
+        'name',
+        'model',
+        'serie' /* Add other fields you want to select */,
+      ],
+    };
+
+    if (name) {
+      query.where = { ...query.where, name: Like(`%${name}%`) };
+    }
+
+    if (model) {
+      query.where = { ...query.where, model: Like(`%${model}%`) };
+    }
+
+    const [result, totalCount] = await this.productRepository.findAndCount(
+      query,
+    );
+
+    return {
+      // data: result,
+      // total: totalCount,
+      // currentPage: currentPage,
+      // size: size,
+
+      list: result,
+      total: totalCount,
+      currentPage: currentPage,
+      size: size,
+    };
   }
 
   findOne(id: number) {
@@ -145,24 +224,28 @@ export class ProductService {
       productToUpdate.description = updateProductDto.description;
     }
     if (updateProductDto.functions) {
-      productToUpdate.functions = updateProductDto.functions.join(",")
+      productToUpdate.functions = updateProductDto.functions.join(',');
     }
     if (updateProductDto.advantages) {
-      productToUpdate.advantages = updateProductDto.advantages.join(",")
+      productToUpdate.advantages = updateProductDto.advantages.join(',');
     }
     if (updateProductDto.technical_parameters) {
-      productToUpdate.technical_parameters = updateProductDto.technical_parameters.join(",")
+      productToUpdate.technical_parameters =
+        updateProductDto.technical_parameters.join(',');
     }
     if (updateProductDto.services) {
-      productToUpdate.services = updateProductDto.services.join(",")
+      productToUpdate.services = updateProductDto.services.join(',');
     }
     if (updateProductDto.whychoose) {
-      productToUpdate.whychoose = updateProductDto.whychoose.join(",")
+      productToUpdate.whychoose = updateProductDto.whychoose.join(',');
     }
     if (updateProductDto.note) {
-      productToUpdate.note = updateProductDto.note.join(",")
+      productToUpdate.note = updateProductDto.note.join(',');
     }
-    return this.productRepository.update(id, productToUpdate)
+    if (updateProductDto.cover) {
+      productToUpdate.cover = updateProductDto.cover;
+    }
+    return this.productRepository.update(id, productToUpdate);
   }
 
   remove(id: number) {
