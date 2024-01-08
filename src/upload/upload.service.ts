@@ -48,6 +48,9 @@ export class UploadService {
       skip: (currentPage - 1) * size,
       where: {},
       select: ['id', 'name', 'type'],
+      order: {
+        create_time: 'DESC', // 或者 'ASC'，取决于您想要的排序方式（降序或升序）
+      },
     };
 
     // if (name) {

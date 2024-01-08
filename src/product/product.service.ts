@@ -191,7 +191,10 @@ export class ProductService {
   }
 
   findOne(id: number) {
-    return this.productRepository.findOne({ where: { id: +id } });
+    return this.productRepository.findOne({
+      where: { id: +id },
+      relations: ['images'], // 使用 'relations' 而不是 'include'
+    });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {

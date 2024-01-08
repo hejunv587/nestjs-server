@@ -113,6 +113,12 @@ export class ProductController {
     return this.productService.findOne(+id);
   }
 
+  // @Get('getimages/:id')
+  // @ApiOperation({ summary: 'id获取单个产品对应的产品图片' })
+  // findImages(@Param('id') id: string) {
+  //   return this.productService.findImages(+id);
+  // }
+
   @Patch(':id')
   @ApiOperation({ summary: 'id修改产品' })
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
