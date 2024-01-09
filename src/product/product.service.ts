@@ -220,9 +220,13 @@ export class ProductService {
       productToUpdate.name = updateProductDto.name;
     }
 
-    if (updateProductDto.description) {
-      productToUpdate.description = updateProductDto.description;
+    if (updateProductDto.serie) {
+      productToUpdate.serie = updateProductDto.serie;
     }
+
+    // if (updateProductDto.description) {
+    //   productToUpdate.description = updateProductDto.description;
+    // }
     if (updateProductDto.description) {
       productToUpdate.description = updateProductDto.description;
     }

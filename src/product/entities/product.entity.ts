@@ -1,3 +1,4 @@
+import { Category } from 'src/category/entities/category.entity';
 import { Upload } from 'src/upload/entities/upload.entity';
 import {
   Column,
@@ -22,8 +23,10 @@ export class Product {
   @Column()
   name: string;
 
-  @Column()
-  serie: string;
+  @ManyToOne(() => Category, { eager: true })
+  // @JoinColumn({ name: 'serie', referencedColumnName: 'name' })
+  @JoinColumn({ name: 'categoryId' }) // 假设外键字段是 categoryId
+  serie: Category;
 
   @OneToOne(() => Upload, (upload) => upload.product, { eager: true })
   @JoinColumn({ name: 'cover_id' })

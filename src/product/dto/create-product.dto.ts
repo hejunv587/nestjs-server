@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Category } from 'src/category/entities/category.entity';
 import { Upload } from 'src/upload/entities/upload.entity';
 
 export class CreateProductDto {
@@ -15,7 +16,7 @@ export class CreateProductDto {
     description: '产品系列',
     example: '摩托车行车记录仪系列',
   })
-  serie: string;
+  serie: Category;
 
   // Other properties...
   @ApiProperty({
