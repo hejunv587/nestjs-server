@@ -10,6 +10,7 @@ import { CreateAboutDto } from './dto/create-about.dto';
 import { About } from './entities/about.entity';
 import { EntityManager, Transaction } from 'typeorm';
 import { Upload } from 'src/upload/entities/upload.entity';
+import { UpdateProductImageDto } from './dto/update-productImage.dto';
 
 interface QueryParam {
   /** 当前页码 */
@@ -134,13 +135,74 @@ export class ProductService {
       where: { id: +id },
       relations: ['images'],
     });
-    // INSERT INTO qa (q, a, productId) VALUES ('30岁S', '没有结婚的女人', 1);
+
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
     product.images = product.images || [];
-    // 创建新的 Upload 对象并添加到 images 数组中
-    const newUpload = new Upload();
-    newUpload.id = uploadId;
-    // newUpload.id = "0a75c57a-eb06-4b1f-92ae-26518899bcbe";
-    product.images.push(newUpload);
+
+    // 检查 images 数组中是否已经存在该 uploadId
+    const isUploadIdExist = product.images.some(
+      (upload) => upload.id === uploadId,
+    );
+
+    if (!isUploadIdExist) {
+      // 创建新的 Upload 对象并添加到 images 数组中
+      const newUpload = new Upload();
+      newUpload.id = uploadId;
+      product.images.push(newUpload);
+    }
+
+    const savedProduct = await this.productRepository.save(product);
+    return savedProduct;
+  }
+
+  async addImages(id: number, uploadIds: string[]) {
+    const product = await this.productRepository.findOne({
+      where: { id: +id },
+      relations: ['images'],
+    });
+
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    product.images = product.images || [];
+
+    // 过滤出不存在于 product.images 中的 uploadIds
+    const newUploadIds = uploadIds.filter(
+      (uploadId) => !product.images.some((upload) => upload.id === uploadId),
+    );
+
+    // 为每个新的 uploadId 创建 Upload 对象并添加到 images 数组中
+    newUploadIds.forEach((uploadId) => {
+      const newUpload = new Upload();
+      newUpload.id = uploadId;
+      product.images.push(newUpload);
+    });
+
+    // 保存更新后的 product 对象，这应该在一个事务中完成
+    const savedProduct = await this.productRepository.save(product);
+    return savedProduct;
+  }
+
+  async removeImage(id: number, updateProductImageDto: UpdateProductImageDto) {
+    const product = await this.productRepository.findOne({
+      where: { id: +id },
+      relations: ['images'],
+    });
+
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    // 从 product.images 中移除指定的 uploadId
+    product.images = product.images.filter(
+      (upload) => upload.id !== updateProductImageDto.uploadId,
+    );
+
+    // 保存更新后的 product 对象
     const savedProduct = await this.productRepository.save(product);
     return savedProduct;
   }

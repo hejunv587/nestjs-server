@@ -90,7 +90,7 @@ export class ProductController {
   }
 
   @Patch('addcover/:id')
-  @ApiOperation({ summary: '添加产品图片' })
+  @ApiOperation({ summary: '添加产品封面图' })
   addCover(
     @Param('id') id: number,
     @Body() updateProductImageDto: UpdateProductImageDto,
@@ -105,6 +105,21 @@ export class ProductController {
     @Body() updateProductImageDto: UpdateProductImageDto,
   ) {
     return this.productService.addImage(+id, updateProductImageDto.uploadId);
+  }
+
+  @Patch('addimages/:id')
+  @ApiOperation({ summary: '批量添加产品图片' })
+  addImages(@Param('id') id: number, @Body() uploads: string[]) {
+    return this.productService.addImages(+id, uploads);
+  }
+
+  @Patch('removeimages/:id')
+  @ApiOperation({ summary: '移除产品图片' })
+  removeImage(
+    @Param('id') id: number,
+    @Body() updateProductImageDto: UpdateProductImageDto,
+  ) {
+    return this.productService.removeImage(+id, updateProductImageDto);
   }
 
   @Get(':id')
