@@ -55,6 +55,12 @@ export class ProductController {
     return this.productService.createQA(createQADto);
   }
 
+  @Patch('qa/:id')
+  @ApiOperation({ summary: 'id修改问答' })
+  updateQA(@Param('id') id: string, @Body() createQADto: CreateQADto) {
+    return this.productService.updateQA(+id, createQADto);
+  }
+
   @Post('about')
   @ApiOperation({ summary: '创建一个新的关于' })
   @ApiBody({ type: CreateAboutDto }) // Add this line to specify the request body

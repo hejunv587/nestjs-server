@@ -86,6 +86,16 @@ export class ProductService {
     });
   }
 
+  async updateQA(id: number, createQADto: CreateQADto) {
+    const qa = await this.qaRepository.findOne({ where: { id } });
+    // 将 `qa` 的 `id` 以外的字段改成 `createQADto` 对应的字段
+    qa.q = createQADto.q;
+    qa.a = createQADto.a;
+    const savedQA = await this.qaRepository.save(qa);
+
+    return savedQA;
+  }
+
   createAbout(createAboutDto: CreateAboutDto) {
     const about = {
       name: createAboutDto.name,
@@ -255,7 +265,7 @@ export class ProductService {
   findOne(id: number) {
     return this.productRepository.findOne({
       where: { id: +id },
-      relations: ['images'], // 使用 'relations' 而不是 'include'
+      relations: ['images', 'qas'], // 使用 'relations' 而不是 'include'
     });
   }
 
