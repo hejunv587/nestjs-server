@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 // import { AuthModule } from './auth/auth/auth.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [UserModule, AuthModule, Config.forRoot({ path: 'joy' }), UploadModule, TypeOrmModule.forRoot({
@@ -24,7 +25,7 @@ import { ProductModule } from './product/product.module';
     retryDelay: 500, //重试连接数据库间隔
     retryAttempts: 10,//重试连接数据库的次数
     autoLoadEntities: true, //如果为true,将自动加载实体 forFeature()方法注册的每个实体都将自动添加到配置对象的实体数组中
-  }), CategoryModule, ProductModule],
+  }), CategoryModule, ProductModule, ReviewModule],
   controllers: [AppController],
   providers: [AppService],
 })
