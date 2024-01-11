@@ -96,6 +96,10 @@ export class ProductService {
     return savedQA;
   }
 
+  removeQA(id: number) {
+    return this.qaRepository.delete(id);
+  }
+
   createAbout(createAboutDto: CreateAboutDto) {
     const about = {
       name: createAboutDto.name,
@@ -126,6 +130,19 @@ export class ProductService {
       );
       return savedAbout;
     });
+  }
+
+  async updateAbout(id: number, createAboutDto: CreateAboutDto) {
+    const about = await this.aboutRepository.findOne({ where: { id } });
+    about.name = createAboutDto.name;
+    about.desc = createAboutDto.desc;
+    const savedAbout = await this.aboutRepository.save(about);
+
+    return savedAbout;
+  }
+
+  removeAbout(id: number) {
+    return this.aboutRepository.delete(id);
   }
 
   async addCover(id: number, uploadId: string) {
@@ -218,7 +235,7 @@ export class ProductService {
   }
 
   findAll() {
-    return this.productRepository.find();
+    return this.productRepository.find({ select: ['id', 'model', 'name'] });
   }
 
   async queryPage(queryParam: QueryParam) {
@@ -265,7 +282,7 @@ export class ProductService {
   findOne(id: number) {
     return this.productRepository.findOne({
       where: { id: +id },
-      relations: ['images', 'qas'], // 使用 'relations' 而不是 'include'
+      relations: ['images', 'qas', 'about'], // 使用 'relations' 而不是 'include'
     });
   }
 

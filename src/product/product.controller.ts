@@ -61,6 +61,12 @@ export class ProductController {
     return this.productService.updateQA(+id, createQADto);
   }
 
+  @Delete('qa/:id')
+  @ApiOperation({ summary: 'id删除问答' })
+  removeQA(@Param('id') id: string) {
+    return this.productService.removeQA(+id);
+  }
+
   @Post('about')
   @ApiOperation({ summary: '创建一个新的关于' })
   @ApiBody({ type: CreateAboutDto }) // Add this line to specify the request body
@@ -68,8 +74,20 @@ export class ProductController {
     return this.productService.createAbout(createAboutDto);
   }
 
+  @Patch('about/:id')
+  @ApiOperation({ summary: 'id修改关于' })
+  updateAbout(@Param('id') id: string, @Body() createAboutDto: CreateAboutDto) {
+    return this.productService.updateAbout(+id, createAboutDto);
+  }
+
+  @Delete('about/:id')
+  @ApiOperation({ summary: 'id删除关于' })
+  removeAbout(@Param('id') id: string) {
+    return this.productService.removeAbout(+id);
+  }
+
   @Get()
-  @ApiOperation({ summary: '获取所有产品' })
+  @ApiOperation({ summary: '获取所有产品,只返回产品id,model,name' })
   findAll() {
     return this.productService.findAll();
   }
