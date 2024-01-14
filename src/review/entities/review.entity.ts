@@ -23,8 +23,8 @@ export class Review {
   @Column()
   content: string;
 
-  @OneToMany(() => Upload)
-  images: Upload[];
+  @OneToMany(() => Upload, (upload) => upload.review)
+  images?: Upload[];
 
   @ManyToOne(() => Product)
   @JoinColumn({ name: 'productId' })
