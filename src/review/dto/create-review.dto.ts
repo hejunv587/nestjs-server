@@ -27,10 +27,18 @@ export class CreateReviewDto {
 
   @ApiProperty({
     description: '产品记录id',
+    type: String,
+    example: '产品很好',
+    nullable: true,
+  })
+  productId?: string;
+
+  @ApiProperty({
+    description: '产品记录',
     type: Product,
     example: { id: 1 },
   })
-  product: Product;
+  product?: Product;
 
   @ApiProperty({
     description: 'review图片',

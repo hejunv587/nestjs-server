@@ -4,6 +4,7 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 import { Review } from './entities/review.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
+import { Product } from 'src/product/entities/product.entity';
 
 interface QueryParam {
   /** 当前页码 */
@@ -26,6 +27,7 @@ export class ReviewService {
   // }
 
   create(createReviewDto: CreateReviewDto): Promise<Review> {
+    createReviewDto.product = { id: +createReviewDto.productId } as Product;
     const review = {
       username: createReviewDto.username,
       score: createReviewDto.score,
@@ -51,6 +53,8 @@ export class ReviewService {
     const queryBuilder = this.reviewRepository.createQueryBuilder('review');
 
     queryBuilder
+      .leftJoinAndSelect('review.images', 'upload')
+      .leftJoinAndSelect('review.product', 'product')
       .take(size)
       .skip((currentPage - 1) * size)
       .select([
@@ -59,7 +63,10 @@ export class ReviewService {
         'review.username',
         'review.score',
         'review.content',
-        'review.images',
+        'review.create_time',
+        'upload.id',
+        'product.id',
+        'product.model',
       ])
       .orderBy('review.create_time', 'DESC'); // 按 create_time 降序排列;
 
