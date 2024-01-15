@@ -6,11 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+
+interface QueryParam {
+  /** 当前页码 */
+  currentPage: number;
+  /** 查询条数 */
+  size: number;
+  /** 查询参数：产品编码 */
+  productId?: string;
+}
 
 @Controller('review')
 @ApiTags('产品评价相关接口')
@@ -22,20 +32,20 @@ export class ReviewController {
     return this.reviewService.create(createReviewDto);
   }
 
-  // @Get('pagequery')
-  // @ApiOperation({ summary: '翻页查询产品评价' })
-  // @ApiQuery({ name: 'currentPage', description: '当前页码', type: Number })
-  // @ApiQuery({ name: 'size', description: '查询条数', type: Number })
-  // @ApiQuery({
-  //   name: 'product',
-  //   description: '查询参数：产品ID',
-  //   required: false,
-  //   type: String,
-  // })
-  // queryPage(@Query() queryParam: QueryParam) {
-  //   console.log('queryPage', queryParam);
-  //   return this.productService.queryPage(queryParam);
-  // }
+  @Get('pagequery')
+  @ApiOperation({ summary: '翻页查询产品评价' })
+  @ApiQuery({ name: 'currentPage', description: '当前页码', type: Number })
+  @ApiQuery({ name: 'size', description: '查询条数', type: Number })
+  @ApiQuery({
+    name: 'productId',
+    description: '查询参数：产品ID',
+    required: false,
+    type: String,
+  })
+  queryPage(@Query() queryParam: QueryParam) {
+    console.log('queryPage', queryParam);
+    return this.reviewService.queryPage(queryParam);
+  }
 
   @Get()
   findAll() {

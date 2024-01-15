@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -29,4 +30,7 @@ export class Review {
   @ManyToOne(() => Product)
   @JoinColumn({ name: 'productId' })
   product?: Product;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  create_time: Date;
 }

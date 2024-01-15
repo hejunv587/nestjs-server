@@ -3,7 +3,16 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { Review } from './entities/review.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
+
+interface QueryParam {
+  /** 当前页码 */
+  currentPage: number;
+  /** 查询条数 */
+  size: number;
+  /** 查询参数：产品编码 */
+  productId?: string;
+}
 
 @Injectable()
 export class ReviewService {
@@ -36,11 +45,44 @@ export class ReviewService {
     return `This action returns a #${id} review`;
   }
 
+  async queryPage(queryParam: QueryParam) {
+    const { currentPage, size, productId } = queryParam;
+
+    const queryBuilder = this.reviewRepository.createQueryBuilder('review');
+
+    queryBuilder
+      .take(size)
+      .skip((currentPage - 1) * size)
+      .select([
+        'review.id',
+        'review.product',
+        'review.username',
+        'review.score',
+        'review.content',
+        'review.images',
+      ])
+      .orderBy('review.create_time', 'DESC'); // 按 create_time 降序排列;
+
+    if (productId) {
+      queryBuilder.andWhere('review.product.id = :productId', { productId });
+    }
+
+    const [result, totalCount] = await queryBuilder.getManyAndCount();
+
+    return {
+      list: result,
+      total: totalCount,
+      currentPage: currentPage,
+      size: size,
+    };
+  }
+
   async findByPrdouctId(productId: number): Promise<Review[]> {
     console.log('findByPrdouctId', productId);
     return this.reviewRepository.find({
       where: { product: { id: productId } },
       relations: ['images'], // Include images in the result
+      order: { create_time: 'DESC' }, // 按 create_time 降序排列
     });
   }
 
