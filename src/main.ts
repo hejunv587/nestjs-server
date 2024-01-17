@@ -5,7 +5,7 @@ import * as session from 'express-session';
 // import { Request, Response, NextFunction } from 'express'
 
 // 引入cors
-import * as cors from 'cors';
+// import * as cors from 'cors';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
@@ -27,6 +27,10 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 //   }
 // }
 
+// 确定当前环境（例如，通过环境变量）
+const isProduction = process.env.NODE_ENV === 'production';
+const allowedOrigins = isProduction ? ['http://admin.cnfxfine.com'] : ['*'];
+
 async function bootstrap() {
   const app = (await NestFactory.create(AppModule)) as NestExpressApplication;
   // 在main.ts中使用cors
@@ -36,7 +40,21 @@ async function bootstrap() {
   //   credentials: true, // 允许携带凭证（cookie）
   //   origin: true,       // 允许请求的域
   // });
-  app.enableCors();
+  // app.enableCors();
+  app.enableCors({
+    credentials: true,
+    origin: (origin, callback) => {
+      if (
+        allowedOrigins[0] === '*' ||
+        !origin ||
+        allowedOrigins.includes(origin)
+      ) {
+        callback(null, true); // 允许请求
+      } else {
+        callback(new Error('Not allowed by CORS'), false); // 拒绝请求
+      }
+    },
+  });
 
   app.use(
     session({
@@ -71,6 +89,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('/api-docs', app, document);
 
-  await app.listen(3000);
+  const prot = isProduction ? 3001 : 3000;
+
+  await app.listen(prot);
 }
 bootstrap();
